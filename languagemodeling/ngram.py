@@ -131,9 +131,10 @@ class AddOneNGram(NGram):
 
         # compute vocabulary
         self._voc = voc = set()
-        # WORK HERE!!
-
+        for sent in sents:
+            voc = voc | set(sent)
         self._V = len(voc)  # vocabulary size
+        print(self._V)
 
     def V(self):
         """Size of the vocabulary.
@@ -146,7 +147,12 @@ class AddOneNGram(NGram):
         token -- the token.
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
-        # WORK HERE!!
+        
+        tupl = prev_tokens + (token,) if prev_tokens else (token,)
+        count = self._count.get(tupl, 0)
+        count2 = self._count.get(prev_tokens,0) if prev_tokens else self._count[()]
+        return (count+1)/float(count2+self.V())
+
 
 
 class InterpolatedNGram(NGram):
@@ -172,15 +178,28 @@ class InterpolatedNGram(NGram):
             held_out_sents = sents[m:]
 
         print('Computing counts...')
-        # WORK HERE!!
         # COMPUTE COUNTS FOR ALL K-GRAMS WITH K <= N
+        count = defaultdict(int)
+        for sent in sents:
+            sent.append('</s>')
+            sent = ['<s>'] * (n-1) + sent
+            for i in range(len(sent)-n+1):
+                for j in range(n+1):
+                    ngram = tuple(sent[i:i+n-j])
+                    count[ngram] += 1
+                if i == len(sent)-n:
+                    for l in range(1,n):
+                        ngram = tuple(sent[i+l:i+n])
+                        count[ngram] += 1
+        self._count = dict(count)
 
         # compute vocabulary size for add-one in the last step
         self._addone = addone
         if addone:
             print('Computing vocabulary...')
             self._voc = voc = set()
-            # WORK HERE!!
+            for sent in sents:
+                voc = voc | set(sent)
 
             self._V = len(voc)
 
@@ -197,7 +216,7 @@ class InterpolatedNGram(NGram):
 
         tokens -- the k-gram tuple.
         """
-        # WORK HERE!! (JUST A RETURN STATEMENT)
+        return self._count.get(tokens, 0)
 
     def cond_prob(self, token, prev_tokens=None):
         """Conditional probability of a token.
