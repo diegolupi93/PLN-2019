@@ -2,6 +2,12 @@
 from collections import defaultdict
 import math
 
+def vocab(sents):
+    voc = set()
+    for sent in sents:
+        voc = voc | set(sent)
+    return voc
+
 
 class LanguageModel(object):
 
@@ -24,21 +30,28 @@ class LanguageModel(object):
 
         sents -- the sentences.
         """
-        # WORK HERE!!
+        prob = 0
+        for sent in sents:
+            prob += sent_log_prob(sent)
+        return prob
 
     def cross_entropy(self, sents):
         """Cross-entropy of a list of sentences.
 
         sents -- the sentences.
         """
-        # WORK HERE!!
+        # cross-entropy = log-probability / "cantidad de palabras"  
+        log_pr = log_prob(sents)
+        voc = vocab(sents)
+        return log_pr/float(len(voc))
 
     def perplexity(self, sents):
         """Perplexity of a list of sentences.
 
         sents -- the sentences.
         """
-        # WORK HERE!!
+        #perplexity = 2 ** (- cross-entropy)
+        return 2**cross_entropy(sents)
 
 
 class NGram(LanguageModel):
@@ -104,7 +117,6 @@ class NGram(LanguageModel):
 
         sent -- the sentence as a list of tokens.
         """
-        ####preguntar si es el logaritmo natural
         n = self._n
         sent.append('</s>')
         sent = ['<s>'] * (n-1) + sent
@@ -131,10 +143,8 @@ class AddOneNGram(NGram):
 
         # compute vocabulary
         self._voc = voc = set()
-        for sent in sents:
-            voc = voc | set(sent)
+        voc = vocab(sents)
         self._V = len(voc)  # vocabulary size
-        print(self._V)
 
     def V(self):
         """Size of the vocabulary.
@@ -198,9 +208,7 @@ class InterpolatedNGram(NGram):
         if addone:
             print('Computing vocabulary...')
             self._voc = voc = set()
-            for sent in sents:
-                voc = voc | set(sent)
-
+            voc = vocab(sents)
             self._V = len(voc)
 
         # compute gamma if not given
