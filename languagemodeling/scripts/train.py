@@ -17,7 +17,7 @@ from docopt import docopt
 import pickle
 #from nltk.corpus import gutenberg
 from nltk.corpus import PlaintextCorpusReader
-from languagemodeling.ngram import NGram
+from languagemodeling.ngram import NGram, AddOneNGram, InterpolatedNGram
 from nltk.tokenize import RegexpTokenizer
 #from languagemodeling.scripts import corpus_helper
 
@@ -44,8 +44,16 @@ if __name__ == '__main__':
     tokenizer = RegexpTokenizer(pattern)
 
     corpus = PlaintextCorpusReader('.', 'es.txt', word_tokenizer=tokenizer)
-
     sents = list(corpus.sents())
+    percent = int(len(sents)*0.9)
+    sents_to_eval = sents[percent:]    
+    sents = sents[:percent]    
+
+    fil_to_eval = "eval"
+    f = open(fil_to_eval, 'wb')
+    pickle.dump(sents_to_eval, f)
+    f.close()
+
     # train the model
     n = int(opts['-n'])
 
@@ -65,6 +73,7 @@ if __name__ == '__main__':
             model = InterpolatedNGram(n, sents, gamma, True)
     else:
         model = NGram(n, sents)
+
 
     # save it
     filename = opts['-o']

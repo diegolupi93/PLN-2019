@@ -3,10 +3,11 @@ from collections import defaultdict
 import math
 import numpy as np
 
+
 def vocab(sents):
     voc = set()
     for sent in sents:
-        voc = voc | set(sent)
+        voc.update(sent)
     return voc
 
 def calculate_lambda(count,gamma,prev_tokens):   
@@ -47,7 +48,6 @@ class LanguageModel(object):
         sents -- the sentences.
         """
         prob = 0
-        #print("=========")
         for sent in sents:
             prob += self.sent_log_prob(sent)
         return prob
@@ -56,19 +56,17 @@ class LanguageModel(object):
         """Cross-entropy of a list of sentences.
 
         sents -- the sentences.
-        """
-        # cross-entropy = log-probability / "cantidad de palabras"  
+        """  
         log_pr = self.log_prob(sents)
         voc = vocab(sents)
-        return log_pr/float(len(voc))
+        return -log_pr/float(self.V())
 
     def perplexity(self, sents):
         """Perplexity of a list of sentences.
 
         sents -- the sentences.
         """
-        #perplexity = 2 ** (- cross-entropy)
-        return 2**(-self.cross_entropy(sents))
+        return 2**(self.cross_entropy(sents))
 
 
 class NGram(LanguageModel):
@@ -108,8 +106,8 @@ class NGram(LanguageModel):
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
         tupl = prev_tokens + (token,) if prev_tokens else (token,)
-        count = self._count.get(tupl, 0)
-        count2 = self._count.get(prev_tokens,1) if prev_tokens else self._count[()]
+        count = self._count.get(tupl)
+        count2 = self._count(prev_tokens) if prev_tokens else self.count(())
         return count/float(count2)
 
 
@@ -162,6 +160,7 @@ class AddOneNGram(NGram):
         self._voc = voc = set()
         voc = vocab(sents)
         self._V = len(voc)  # vocabulary size
+        print(self._V)
 
     def V(self):
         """Size of the vocabulary.
@@ -176,8 +175,8 @@ class AddOneNGram(NGram):
         """
         
         tupl = prev_tokens + (token,) if prev_tokens else (token,)
-        count = self._count.get(tupl, 0)
-        count2 = self._count.get(prev_tokens,0) if prev_tokens else self._count[()]
+        count = self.count(tupl)
+        count2 = self.count(prev_tokens)
         return (count+1)/float(count2+self.V())
 
 

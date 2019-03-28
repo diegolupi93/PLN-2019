@@ -11,8 +11,10 @@ Options:
 from docopt import docopt
 import pickle
 import math
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import PlaintextCorpusReader
+from languagemodeling.ngram import NGram
 
-from nltk.corpus import gutenberg
 
 
 if __name__ == '__main__':
@@ -35,9 +37,11 @@ if __name__ == '__main__':
 
     tokenizer = RegexpTokenizer(pattern)
     root = '.'
-    filename = 'eval.txt'
-    corpus = PlaintextCorpusReader(root, filename, word_tokenizer=tokenizer)
-    sents = list(corpus.sents())
+    filename = 'eval'
+    f = open(filename, 'rb')
+    sents = pickle.load(f)
+    f.close()
+    
     
 
     log_prob = model.log_prob(sents)
