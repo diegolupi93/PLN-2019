@@ -38,11 +38,11 @@ if __name__ == '__main__':
     filename = 'eval.txt'
     corpus = PlaintextCorpusReader(root, filename, word_tokenizer=tokenizer)
     sents = list(corpus.sents())
-    sent = sents[int(len(sent)*0.9):-1]
+    
 
-    log_prob = None
-    e = None
-    p = None
+    log_prob = model.log_prob(sents)
+    e = model.cross_entropy(sents)
+    p = model.perplexity(sents)
 
     print('Log probability: {}'.format(log_prob))
     print('Cross entropy: {}'.format(e))

@@ -15,7 +15,6 @@ Options:
 """
 from docopt import docopt
 import pickle
-
 #from nltk.corpus import gutenberg
 from nltk.corpus import PlaintextCorpusReader
 from languagemodeling.ngram import NGram
@@ -47,7 +46,6 @@ if __name__ == '__main__':
     corpus = PlaintextCorpusReader('.', 'es.txt', word_tokenizer=tokenizer)
 
     sents = list(corpus.sents())
-    sents = sents[0:int(len(sents)*0.9)]
     # train the model
     n = int(opts['-n'])
 
