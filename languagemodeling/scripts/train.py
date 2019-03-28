@@ -47,7 +47,7 @@ if __name__ == '__main__':
     corpus = PlaintextCorpusReader('.', 'es.txt', word_tokenizer=tokenizer)
 
     sents = list(corpus.sents())
-    # sent = sents[0:len(sent)*0.9]??
+    sents = sents[0:int(len(sents)*0.9)]
     # train the model
     n = int(opts['-n'])
 

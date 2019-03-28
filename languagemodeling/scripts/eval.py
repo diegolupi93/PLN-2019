@@ -24,12 +24,22 @@ if __name__ == '__main__':
     model = pickle.load(f)
     f.close()
 
-    # load the data
-    # WORK HERE!! LOAD YOUR EVALUATION CORPUS
-    sents = gutenberg.sents('austen-persuasion.txt')
+    pattern = r'''(?ix)    # set flag to allow verbose regexps
+          (?:sr\.|sra\.)
+        | (?:[A-Z]\.)+        # abbreviations, e.g. U.S.A.
+        | \w+(?:-\w+)*        # words with optional internal hyphens
+        | \$?\d+(?:\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%
+        | \.\.\.            # ellipsis
+        | [][.,;"'?():-_`]  # these are separate tokens; includes ], [
+    '''
 
-    # compute the cross entropy
-    # WORK HERE!!
+    tokenizer = RegexpTokenizer(pattern)
+    root = '.'
+    filename = 'eval.txt'
+    corpus = PlaintextCorpusReader(root, filename, word_tokenizer=tokenizer)
+    sents = list(corpus.sents())
+    sent = sents[int(len(sent)*0.9):-1]
+
     log_prob = None
     e = None
     p = None
